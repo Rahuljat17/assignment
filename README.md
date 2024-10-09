@@ -29,42 +29,52 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+Install and Configure Nginx:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Install Nginx:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+bash
+Copy code
+sudo apt-get install nginx
+Copy the build folder to Nginx’s default web directory:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+bash
+Copy code
+sudo cp -r build/* /var/www/html/
+Restart Nginx:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+bash
+Copy code
+sudo systemctl restart nginx
+Your app should now be accessible via the EC2 public IP.
 
-## Learn More
+Step 2: Use S3 for Image Storage
+Create an S3 bucket:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Go to Amazon S3 console.
+Create a bucket (e.g., manhwa-images).
+Upload Images to the bucket.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Serve Images from S3:
 
-### Code Splitting
+Use the public URLs of the images in your JSON data (if you plan to display images in the app).
+3. Auto-Scaling Setup
+AWS EC2 Auto Scaling:
+Create an Auto Scaling Group:
+Go to the EC2 Auto Scaling console.
+Define the minimum and maximum number of EC2 instances based on traffic.
+Configure Scaling Policies:
+Set policies to scale based on CPU utilization or network traffic.
+For example, scale up when CPU utilization > 70%, and scale down when < 20%.
+4. Security Setup
+a) Enable HTTPS:
+Use AWS Certificate Manager (ACM) to get an SSL certificate:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Go to ACM and request a new certificate for your domain.
+Attach the certificate to an Elastic Load Balancer (if you have one) or configure Nginx to serve via HTTPS.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+b) Configure Firewall:
+In the EC2 Security Groups, allow only necessary ports:
+Port 80 for HTTP
+Port 443 for HTTPS
+Restrict SSH (port 22) to your IP.
